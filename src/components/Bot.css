@@ -1,0 +1,125 @@
+html, body{
+    min-height:100%;
+    margin:0;
+    padding:0;
+    font-family: Arial,Verdana,Helvetica,sans-serif;
+    font-weight: 300;
+    line-height: 1.3;
+    font-size: 16px;
+    background-color: #fff;
+    text-rendering: optimizeLegibility;
+    text-align: center;
+    color: #666;
+}
+.overlay{
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    background-color: rgba(0,0,0,.5);
+    z-index: 10;
+    display: flex;
+}
+.info-box{
+    width:calc(50%);
+    box-sizing: border-box;
+    padding:30px;
+    margin:auto;
+    background-color:#eff1f3;
+    border-bottom: 1px solid #eff1f3;
+    box-shadow: 0 9px 9px 0 rgba(51,51,51,.25);
+    vertical-align: middle;
+}
+ul {
+  list-style-type: none;
+  padding: 0;
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+}
+.patient{
+    background-color: #f2faf7;
+    height: 20px;
+    width: 200px;
+    border-radius: 5px;
+    display: flex;
+    padding: 5px;
+    justify-content: space-between;
+    margin-bottom:10px;
+    margin-right:10px;
+}
+.positiveClass{
+    background-color: #cd060114;
+}
+.importContainer{
+    width:calc(50% - 40px);
+    box-sizing: border-box;
+    padding:30px;
+    float:left;
+    margin:20px;
+    background-color:#eff1f3;
+    border-bottom: 1px solid #eff1f3;
+    box-shadow: 0 9px 9px 0 rgba(51,51,51,.25);
+}
+.patientContainer{
+    width:50%;
+    float:right;
+    min-height: 500px;
+}
+.sendContainer{
+    width:calc(50% - 40px);
+    box-sizing: border-box;
+    padding:30px;
+    float:left;
+    margin:20px;
+    background-color:#eff1f3;
+    border-bottom: 1px solid #eff1f3;
+    box-shadow: 0 9px 9px 0 rgba(51,51,51,.25);
+}
+.primary-button{
+    background-color:#cd0601;
+    height:40px;
+    width:150px;
+    border-radius: 5px;
+    border: 1px solid #666;
+    margin-top:0px;
+    color:white;
+    margin: 0 10px;
+}
+.primary-button:hover{
+    background-color:#cd060129;
+    cursor: pointer;
+    color:black;
+}
+.secondary-button{
+    background-color:#096;
+    height:40px;
+    width:150px;
+    border-radius: 5px;
+    border: 1px solid #666;
+    color:white;
+    margin: 0 10px;
+}
+.secondary-button:hover{
+    background-color:#0099663d;
+    cursor: pointer;
+    color:black;
+}
+.input{
+    margin-bottom:30px;
+}
+.clear-button{
+    background-color:#cd0601;
+    height:30px;
+    width:70px;
+    border-radius: 5px;
+    border: 1px solid #666;
+    margin-top:0px;
+    color:white;
+    float:right;
+}
+.clear-button:hover{
+    background-color:#cd060129;
+    cursor: pointer;
+    color:black;
+}
