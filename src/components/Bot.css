@@ -123,3 +123,11 @@ ul {
     cursor: pointer;
     color:black;
 }
+
+.download_button{
+    padding-top:20px;
+    cursor: pointer;
+}
+.download_button:hover{
+    color: #80808085;
+}

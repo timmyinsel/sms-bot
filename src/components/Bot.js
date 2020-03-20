@@ -2,18 +2,24 @@ import {
     XlsxRead,
     XlsxJson
 } from "../../node_modules/vue-xlsx/"
-
-
-var request = require('request');
-
+import Vue from 'vue'
+import excel from 'vue-excel-export'
+Vue.use(excel)
 export default {
     components: {
         XlsxRead,
-        XlsxJson
+        XlsxJson,
+        excel
     },
     data() {
         return {
             contacts: [],
+            failedContacts: [],
+            export_fields: {
+                'Name': 'name',
+                'Number': 'number',
+                'Result': 'result',
+            },
             file: null,
             password: "",
 
@@ -43,6 +49,7 @@ export default {
         },
         clear() { //clear all patients
             this.contacts = [];
+            this.failedContacts = [];
             this.file = null;
             document.getElementById("fileUpload").value = "";
             this.password = "";
@@ -50,6 +57,7 @@ export default {
         hideOverlay() { //hide final overlay 
             this.overlay = false;
             this.contacts = [];
+            this.failedContacts = [];
             this.file = event.target.files ? event.target.files[0] : null;
             this.positive = 0,
                 this.negative = 0,
@@ -62,12 +70,23 @@ export default {
             this.file = event.target.files ? event.target.files[0] : null;
         },
         getData(data) { //get data from document and store to contacts array
+            /*eslint no-useless-escape: "error"*/
+            var expression1 = /^\+\d\d[ ][7][\d ]{8,12}$/;
+            var expression2 = /^\d\d[0-9]{7,10}$/;
             for (var i = 0; i < data.length; i++) {
-                this.contacts.push({
-                    name: data[i].Name,
-                    number: data[i].Nummer,
-                    result: data[i].Resultat
-                })
+                if (expression1.test(data[i].Nummer) || expression2.test(data[i].Nummer)) {
+                    this.contacts.push({
+                        name: data[i].Name,
+                        result: data[i].Resultat,
+                        number: data[i].Nummer,
+                    })
+                } else {
+                    this.failedContacts.push({
+                        name: data[i].Name,
+                        result: data[i].Resultat,
+                        number: data[i].Nummer,
+                    })
+                }
             }
         },
         alert() { //show overlay yes or 
@@ -77,18 +96,21 @@ export default {
                 this.correct = true;
             }
         },
-        sendNotification() { //send sms
+        async sendNotification() { //send sms
             this.notification = false;
-            var xmlhttp = new XMLHttpRequest();
             this.contacts.forEach(element => {
                 if (element.number !== undefined) {
                     if (element.result === 'p') {
+                        let xmlhttp = new XMLHttpRequest();
                         xmlhttp.open("GET", "https://url.ecall.ch/Api/Sms?Address=" + element.number + "&Message=" + this.messagePos + "&Username=timmy&Password=" + this.password, true);
                         xmlhttp.send();
+                        console.log(element.name)
                         this.positive = this.positive + 1;
                     } else if (element.result === 'n') {
+                        let xmlhttp = new XMLHttpRequest();
                         xmlhttp.open("GET", "https://url.ecall.ch/Api/Sms?Address=" + element.number + "&Message=" + this.messageNeg + "&Username=timmy&Password=" + this.password, true);
                         xmlhttp.send();
+                        console.log(element.name)
                         this.negative = this.negative + 1;
                     }
                 } else {
@@ -98,90 +120,7 @@ export default {
             });
             this.overlay = true;
             this.password = "";
-        },
-        pushSMS() {
-            var options = {
-                url: 'https://api.swisscom.com/messaging/bulksms/',
-                method: 'POST',
-                headers: {
-                    'client_id': 'LHu01wTOMaVzuqLA7SIfMYGAA1BEzn16',
-                    'Content-Type': 'application/json',
-                    'SCS-Version': '2',
-                    'SCS-Request-ID': 'd9ddfbec-811e-4d98-b4a3-a9333ac2e0ab'
-                },
-            }
-            fetch(options.url, options)
-            .then(data=>{return data})
-            .then(res=>{console.log(res)})
-            .catch(error=>{console.log(error)});
-        },
-        statusSMS() {
-            var options = {
-                mode:'no-cors',
-                url: 'https://api.swisscom.com/messaging/bulksms/d9ddfbec-811e-4d98-b4a3-a9333ac2e0ab',
-                method: 'GET',
-                headers: {
-                    'client_id': 'LHu01wTOMaVzuqLA7SIfMYGAA1BEzn16',
-                    'Content-Type': 'application/json',
-                    'SCS-Version': '2',
-                },
-            };
-
-            fetch(options.url, options)
-            .then(data=>{return data.json()})
-            .then(res=>{console.log(res)})
-            .catch(error=>{console.log(error)});
-        },
-        dataSMS() {
-            var options = {
-                url: 'https://api.swisscom.com/messaging/bulksms/d9ddfbec-811e-4d98-b4a3-a9333ac2e0ab/datasets',
-                method: 'POST',
-                headers: {
-                    'client_id': 'LHu01wTOMaVzuqLA7SIfMYGAA1BEzn16',
-                    'Content-Type': 'application/json',
-                    'SCS-Version': '2',
-                },
-                json: {
-                    "name": "Resultate",
-                    "template": "Wir senden ihnen folgendes Resultat: ${result}",
-                    "recipients": [{
-                        "to": "+41793079509",
-                        "placeholders": [{
-                            "key": "result",
-                            "value": "blau"
-                        }]
-                    }]
-                }
-            };
-
-            request(options, function (error, response, body) {
-                console.log('error:', error); // Print the error if one occurred
-                console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-                console.log('body:', body); // Print the HTML for the Google homepage.
-
-            }); 
-        },
-        sendSMS() {
-            var options = {
-                url: 'https://api.swisscom.com/messaging/bulksms/d9ddfbec-811e-4d98-b4a3-a9333ac2e0ab',
-                method: 'POST',
-                headers: {
-                    'client_id': 'LHu01wTOMaVzuqLA7SIfMYGAA1BEzn16',
-                    'Content-Type': 'application/json',
-                    'SCS-Version': '2',
-                },
-                json: {
-                    "status": "PROGRESS"
-                }
-            };
-
-            request(options, function (error, response, body) {
-                console.log('error:', error); // Print the error if one occurred
-                console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-                console.log('body:', body); // Print the HTML for the Google homepage.
-
-            });
-            this.statusSMS();
+            this.failedContacts = [];
         },
     }
 }

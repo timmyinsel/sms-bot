@@ -23,8 +23,6 @@
       </div>
     </div>
     <div class="importContainer">
-      <h3>Password</h3>
-      <input type="password" class="input" v-model="password"/>
       <h3>Import Patient information</h3>
       <input id="fileUpload" class="input" type="file" @change="onChange" />
       <xlsx-read :file="file">
@@ -34,16 +32,17 @@
           </template>
         </xlsx-json>
       </xlsx-read>
-      <button v-on:click="pushSMS">push</button>
+      <!-- <button v-on:click="pushSMS">push</button>
       <button v-on:click="statusSMS">status</button>
       <button v-on:click="dataSMS">add</button>
-      <button v-on:click="sendSMS">send</button>
+      <button v-on:click="sendSMS">send</button> -->
       <button class="clear-button" v-on:click="clear()" v-if="contacts.length !== 0">Clear</button>
     </div>
 
     <div class="patientContainer">
       <ul>
-        <li class="patient" v-for="(contact, index) in contacts" :key="index" v-bind:class="computedClass(contact.result)">
+        <li class="patient" v-for="(contact, index) in contacts" :key="index"
+          v-bind:class="computedClass(contact.result)">
           <span>{{ contact.name }}</span>
           <button v-on:click="removeItem(index)">delete</button>
         </li>
@@ -51,9 +50,15 @@
     </div>
 
     <div class="sendContainer" v-if="contacts.length !== 0">
+      <h3>Password</h3>
+      <input type="password" class="input" v-model="password" />
       <h3>Send Notifications ({{ contacts.length }})</h3>
       <button class="primary-button" v-on:click="alert">Send</button>
+      <export-excel class="download_button" :data="failedContacts" :fields="export_fields" name="NoMobileNumber">
+      Download Patients without Mobile Number ({{ failedContacts.length }})
+    </export-excel>
     </div>
+    
 
   </div>
 
