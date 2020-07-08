@@ -31,10 +31,12 @@ export default {
             incorrect: false,
 
             //messages
-            messageNeg: "Guten Tag, Ihr Abstrich auf COVID-19 ist negativ. Bitte halten Sie die BAG-Anweisung «Selbstisolation bei Fieber und Husten» auf http://bit.ly/nocoronabag ein.",
+            messageNeg: "Guten Tag, Ihr Abstrich auf COVID-19 ist negativ. Bitte halten Sie die BAG-Anweisung «Selbst-Isolation» auf http://bit.ly/Selbstisolation_BAG ein.",
 
-            messagePos: "Guten Tag, Ihr Abstrich auf COVID-19 ist positiv. Bitte halten Sie sich an die BAG-Anweisung «Wenn Sie mit dem neuen Coronavirus infiziert sind und zu Hause isoliert werden» auf http://bit.ly/coronainsel\
-            Sollte sich Ihr Zustand verschlechtern und z.B. Atemnot auftreten, so melden Sie sich telefonisch bei nächsten Notfallstation. Tragen Sie eine Maske, wenn Sie Ihr Zuhause verlassen.",
+            messagePos: "Guten Tag, Ihr Abstrich auf COVID-19 ist positiv. Bitte halten Sie sich an die BAG-Anweisung «Wenn Sie mit dem neuen Coronavirus infiziert sind und zu Hause isoliert werden» auf http://bit.ly/Selbstisolation_BAG \
+            Sollte sich Ihr Zustand verschlechtern und z.B. Atemnot auftreten, so melden Sie sich telefonisch bei Ihrer nächsten Notfallstation. Tragen Sie eine Maske, wenn Sie Ihr Zuhause verlassen.",
+
+            messageNegCoworker: "Guten Tag, Ihr Abstrich auf COVID-19 ist negativ ausgefallen. Somit können Sie weiterarbeiten. Solange Sie Symptome einer Atemwegserkrankung wie Schnupfen, Halsschmerzen oder Husten haben, tragen Sie eine chirurgische Maske. Für Mitarbeiter mit direktem Patientenkontakt gilt eine generelle Maskentragpflicht.",
 
             //counters
             positive: 0,
@@ -70,6 +72,7 @@ export default {
             this.file = event.target.files ? event.target.files[0] : null;
         },
         getData(data) { //get data from document and store to contacts array
+            this.failedContacts = [];
             var expression1 = /^\+\d\d[ ][7][\d ]{8,12}$/;
             var expression2 = /^\d\d[0-9]{7,10}$/;
             for (var i = 0; i < data.length; i++) {
@@ -80,6 +83,7 @@ export default {
                         this.contacts.push({
                             name: data[i].Name + " " + data[i].Vorname,
                             result: data[i].Resultat,
+                            coworker: data[i].Mitarbeiter,
                             mobile: data[i].Mobile,
                             status: data[i].Erlaubnis,
                         })
@@ -87,6 +91,7 @@ export default {
                         this.failedContacts.push({
                             name: data[i].Name + " " + data[i].Vorname,
                             result: data[i].Resultat,
+                            coworker: data[i].Mitarbeiter,
                             mobile: data[i].Mobile,
                             status: data[i].Erlaubnis,
                         })
@@ -95,6 +100,7 @@ export default {
                     this.failedContacts.push({
                         name: data[i].Name + " " + data[i].Vorname,
                         result: data[i].Resultat,
+                        coworker: data[i].Mitarbeiter,
                         mobile: data[i].Mobile,
                         status: data[i].Erlaubnis,
                     })
@@ -111,23 +117,32 @@ export default {
         async sendNotification() { //send sms
             this.notification = false;
             this.contacts.forEach(element => {
-                if (element.result === 'p') { //positive retults
-                    let xmlhttp = new XMLHttpRequest();
-                    xmlhttp.open("GET", "https://url.ecall.ch/Api/Sms?Address=" + element.mobile + "&Message=" + this.messagePos + "&Username=timmy&Password=" + this.password, true);
-                    xmlhttp.send();
-                    console.log(element.name)
-                    this.positive = this.positive + 1;
-                } else if (element.result === 'n') { //negative retults
-                    let xmlhttp = new XMLHttpRequest();
-                    xmlhttp.open("GET", "https://url.ecall.ch/Api/Sms?Address=" + element.mobile + "&Message=" + this.messageNeg + "&Username=timmy&Password=" + this.password, true);
-                    xmlhttp.send();
-                    console.log(element.name)
-                    this.negative = this.negative + 1;
+                if (element.coworker === 'Nein') { //is not a coworker
+                    if (element.result === 'p') { //positive retults
+                        let xmlhttp = new XMLHttpRequest();
+                        xmlhttp.open("GET", "https://url.ecall.ch/Api/Sms?Address=" + element.mobile + "&Message=" + this.messagePos + "&Username=timmy&Password=" + this.password, true);
+                        xmlhttp.send();
+                        console.log(element.name)
+                        this.positive = this.positive + 1;
+                    } else if (element.result === 'n') { //negative retults
+                        let xmlhttp = new XMLHttpRequest();
+                        xmlhttp.open("GET", "https://url.ecall.ch/Api/Sms?Address=" + element.mobile + "&Message=" + this.messageNeg + "&Username=timmy&Password=" + this.password, true);
+                        xmlhttp.send();
+                        console.log(element.name)
+                        this.negative = this.negative + 1;
+                    }
+                } else if (element.coworker === 'Ja') { //is a coworker
+                    if (element.result === 'n') { //negative retults
+                        let xmlhttp = new XMLHttpRequest();
+                        xmlhttp.open("GET", "https://url.ecall.ch/Api/Sms?Address=" + element.mobile + "&Message=" + this.messageNegCoworker + "&Username=timmy&Password=" + this.password, true);
+                        xmlhttp.send();
+                        console.log(element.name)
+                        this.negative = this.negative + 1;
+                    }
                 }
             });
             this.summaryOverlay = true;
             this.password = "";
-            this.failedContacts = [];
         },
     }
 }

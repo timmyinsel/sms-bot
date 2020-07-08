@@ -22,12 +22,12 @@
       </div>
     </div>
     <header class="header">
-      <img src="/logo.svg" alt="Insel Gruppe Logo" class="header-logo" >
       <a class="download-excel" href="/Import.xlsm" download>Download Excel</a>
+      <img src="/logo.svg" title="Version 0.1" class="header-logo" >
     </header>
     <div class="importContainer">
       <h3>Import Patient information</h3>
-      <input id="fileUpload" class="input" type="file" @change="onChange" />
+      <input id="fileUpload" class="input" type="file" value="Choose File" @change="onChange" />
       <xlsx-read :file="file">
         <xlsx-json>
           <template #default="{collection}">

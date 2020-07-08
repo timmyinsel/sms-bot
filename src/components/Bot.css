@@ -41,6 +41,9 @@ header{
 .header-logo{
     height: 40px;
     margin-top: 10px;
+    z-index: 1000000;
+    top: -20px;
+    position: relative;
 }
 ul {
   list-style-type: none;
@@ -147,7 +150,7 @@ ul {
     float: left;
     width: 100%;
     text-align: initial;
-    top: -35px;
+    top: 20px;
     position: relative;
     left: 20px;
     text-decoration: none;
